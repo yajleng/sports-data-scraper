@@ -1,4 +1,4 @@
-# modules/espn_nfl.py
+
 import time, requests
 
 SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
