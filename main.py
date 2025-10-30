@@ -3,7 +3,7 @@ import time
 from flask import Flask, jsonify
 from modules.espn_nfl import get_nfl_data
 from modules.espn_nfl_teamstats import get_nfl_teamstats
-from modules.espn_nfl_standings import get_nfl_standings  # optional, if already exists
+from modules.espn_nfl_standings import get_nfl_standings  # optional
 
 app = Flask(__name__)
 
