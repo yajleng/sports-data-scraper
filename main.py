@@ -23,16 +23,6 @@ def scrape_nfl():
     data = get_nfl_data()
     return jsonify(data)
     
-@app.route("/scrape/nfl/standings")
-def scrape_nfl_standings():
-    return jsonify(get_nfl_standings())
-    
-@app.route("/scrape/nfl/standings/raw")
-def scrape_nfl_standings_raw():
-    import requests
-    r = requests.get("https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/standings", headers={"User-Agent": "Mozilla/5.0"})
-    return r.json()
-
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "ts": int(time.time())})
