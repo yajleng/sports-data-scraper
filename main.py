@@ -1,7 +1,7 @@
 import os
 import time
 from flask import Flask, jsonify
-from modules.espn_nfl import get_nfl_data  # import the scraper function
+from modules.espn_nfl import get_nfl_data
 from modules.espn_nfl_teamstats import get_nfl_teamstats
 
 app = Flask(__name__)
@@ -12,6 +12,7 @@ def home():
         "message": "Sports Data Scraper is running.",
         "endpoints": {
             "nfl": "/scrape/nfl",
+            "teamstats": "/scrape/nfl/teamstats",
             "health": "/health"
         },
         "status": "ok"
@@ -22,11 +23,12 @@ def scrape_nfl():
     """Fetch live NFL data from ESPN."""
     data = get_nfl_data()
     return jsonify(data)
-    
-    @app.route("/scrape/nfl/teamstats")
+
+@app.route("/scrape/nfl/teamstats")
 def scrape_nfl_teamstats():
+    """Fetch team stats from ESPN NFL API."""
     return jsonify(get_nfl_teamstats())
-    
+
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "ts": int(time.time())})
