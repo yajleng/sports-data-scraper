@@ -22,6 +22,10 @@ def scrape_nfl():
     """Fetch live NFL data from ESPN."""
     data = get_nfl_data()
     return jsonify(data)
+    
+@app.route("/scrape/nfl/standings")
+def scrape_nfl_standings():
+    return jsonify(get_nfl_standings())
 
 @app.route("/health")
 def health():
