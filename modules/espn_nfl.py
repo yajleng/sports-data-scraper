@@ -64,7 +64,7 @@ def get_nfl_data():
     }
 ------------------------------------------------------------
 
-STEP 3 — Update main.py to add the new route
+# STEP 3 - Update main.py to add the new route
 1) In GitHub, open main.py → “Edit”.
 2) Replace the whole file with this (keeps /scrape and adds /scrape/nfl):
 
