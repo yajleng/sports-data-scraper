@@ -50,6 +50,10 @@ def cfb_team():
         return jsonify({"error": "missing ?name="}), 400
     return jsonify(get_team_from_cache(year, week, name))
 
+@app.route("/fetch/cfb/team")
+def fetch_cfb_team_alias():
+    return cfb_team()
+
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "ts": int(time.time())})
