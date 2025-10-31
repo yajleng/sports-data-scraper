@@ -1,47 +1,38 @@
 import os
 import time
 from flask import Flask, jsonify, request
-from modules.cfb_sportsipy import get_cfb_games, get_cfb_team, get_cfb_boxscore
+from modules.cfb_data import get_cfbd_team, get_sportsdata_team_stats
 
 app = Flask(__name__)
 
 @app.route("/")
-def home():
+def root():
     return jsonify({
-        "message": "College Football Data Scraper (Sportsipy) is running.",
-        "status": "ok",
+        "message": "College Football Data API is running.",
         "endpoints": {
-            "cfb_games": "/scrape/cfb/games?date=YYYYMMDD",
-            "cfb_team": "/scrape/cfb/team?name=TeamName&year=YYYY",
-            "cfb_boxscore": "/scrape/cfb/boxscore?id=BoxscoreID",
+            "cfbd_team": "/fetch/cfb/team?name=TeamName&year=YYYY",
+            "sportsdata_team": "/fetch/cfb/teamstats?name=TeamName",
             "health": "/health"
-        }
+        },
+        "status": "ok"
     })
 
-@app.route("/scrape/cfb/games")
-def scrape_cfb_games():
-    date_str = request.args.get("date")
-    if not date_str:
-        return jsonify({"error": "Missing required query param: date (YYYYMMDD)"})
-    data = get_cfb_games(date_str)
-    return jsonify(data)
-
-@app.route("/scrape/cfb/team")
-def scrape_cfb_team():
+# ---- CollegeFootballData endpoint ----
+@app.route("/fetch/cfb/team")
+def cfbd_team():
     name = request.args.get("name")
-    year = request.args.get("year", type=int, default=2024)
+    year = request.args.get("year", 2024)
     if not name:
-        return jsonify({"error": "Missing required query param: name"})
-    data = get_cfb_team(name, year)
-    return jsonify(data)
+        return jsonify({"error": "missing ?name= parameter"})
+    return jsonify(get_cfbd_team(name, year))
 
-@app.route("/scrape/cfb/boxscore")
-def scrape_cfb_boxscore():
-    boxscore_id = request.args.get("id")
-    if not boxscore_id:
-        return jsonify({"error": "Missing required query param: id"})
-    data = get_cfb_boxscore(boxscore_id)
-    return jsonify(data)
+# ---- SportsData.io endpoint ----
+@app.route("/fetch/cfb/teamstats")
+def sportsdata_team():
+    name = request.args.get("name")
+    if not name:
+        return jsonify({"error": "missing ?name= parameter"})
+    return jsonify(get_sportsdata_team_stats(name))
 
 @app.route("/health")
 def health():
