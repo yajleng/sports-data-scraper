@@ -2,6 +2,7 @@ import os
 import time
 from flask import Flask, jsonify, request
 from modules.cfb_data import get_cfbd_team, get_sportsdata_team_stats
+from modules.sportsdata_cfb import get_sportsdata_team_stats
 
 app = Flask(__name__)
 
@@ -16,7 +17,7 @@ def root():
         },
         "status": "ok"
     })
-
+    
 # ---- CollegeFootballData endpoint ----
 @app.route("/fetch/cfb/team")
 def cfbd_team():
@@ -33,6 +34,13 @@ def sportsdata_team():
     if not name:
         return jsonify({"error": "missing ?name= parameter"})
     return jsonify(get_sportsdata_team_stats(name))
+
+@app.route("/fetch/cfb/teamstats")
+def fetch_teamstats():
+    team_name = request.args.get("name", "")
+    if not team_name:
+        return jsonify({"error": "Missing team name"})
+    return jsonify(get_sportsdata_team_stats(team_name))
 
 @app.route("/health")
 def health():
