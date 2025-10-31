@@ -1,61 +1,76 @@
-import time
-from sportsipy.ncaaf.boxscore import Boxscores, Boxscore
+from datetime import datetime
 from sportsipy.ncaaf.teams import Teams
+from sportsipy.ncaaf.boxscore import Boxscore
+import difflib
+import time
 
-def _ts():
-    return int(time.time())
+def get_cfb_games(date_str):
+    try:
+        # Convert YYYYMMDD → datetime
+        date_obj = datetime.strptime(str(date_str), "%Y%m%d")
+        teams = Teams(date_obj.year)
+        games = []
+        for team in teams:
+            for game in team.schedule:
+                if game.date == date_obj:
+                    games.append({
+                        "home_team": game.home_name,
+                        "away_team": game.away_name,
+                        "home_points": game.home_points,
+                        "away_points": game.away_points,
+                        "winner": game.winner,
+                        "location": game.location,
+                        "date": game.date.isoformat()
+                    })
+        return {
+            "source": "sportsipy",
+            "sport": "NCAAF",
+            "game_count": len(games),
+            "games": games,
+            "timestamp": int(time.time())
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
-def get_cfb_games(date_yyyymmdd):
-    data = Boxscores(int(date_yyyymmdd)).games
-    games = []
-    for _, games_list in data.items():
-        for g in games_list:
-            games.append({
-                "id": g.get("boxscore"),
-                "away": g.get("away_name"),
-                "home": g.get("home_name"),
-                "away_score": g.get("away_score"),
-                "home_score": g.get("home_score"),
-                "start_time": g.get("time"),
-                "venue": g.get("location"),
-                "status": g.get("non_di")
-            })
-    return {"source":"sportsipy","sport":"NCAAF","date":date_yyyymmdd,"game_count":len(games),"games":games,"timestamp":_ts()}
+def get_cfb_team(name, year):
+    try:
+        teams = Teams(year)
+        all_names = [t.name for t in teams]
+        match = difflib.get_close_matches(name, all_names, n=1)
+        if not match:
+            return {"match": None, "error": "No team found"}
+        team = next(t for t in teams if t.name == match[0])
+        data = {
+            "source": "sportsipy",
+            "sport": "NCAAF",
+            "team": team.name,
+            "abbreviation": team.abbreviation,
+            "conference": team.conference,
+            "wins": team.wins,
+            "losses": team.losses,
+            "points_for": team.points_for,
+            "points_against": team.points_against,
+            "offensive_rank": getattr(team, "offense_rank", None),
+            "defensive_rank": getattr(team, "defense_rank", None),
+            "timestamp": int(time.time())
+        }
+        return data
+    except Exception as e:
+        return {"error": str(e)}
 
-def get_cfb_team(team_query, year=None):
-    teams = Teams(year)
-    target = None
-    q = team_query.lower()
-    for t in teams:
-        if q in t.name.lower() or q == t.abbreviation.lower():
-            target = t
-            break
-    if not target:
-        return {"source":"sportsipy","sport":"NCAAF","match":None,"timestamp":_ts()}
-    return {
-        "source":"sportsipy",
-        "sport":"NCAAF",
-        "match":{
-            "name": target.name,
-            "abbreviation": target.abbreviation,
-            "conference": target.conference,
-            "wins": target.wins,
-            "losses": target.losses,
-            "points_for": target.points_for,
-            "points_against": target.points_against,
-            "simple_rating_system": target.simple_rating_system,
-            "year": target.year
-        },
-        "timestamp": _ts()
-    }
-
-def get_cfb_boxscore(game_id):
-    b = Boxscore(game_id)
-    return {
-        "source":"sportsipy",
-        "sport":"NCAAF",
-        "game_id": b.boxscore_index,
-        "away":{"name": b.away_name, "points": b.away_points},
-        "home":{"name": b.home_name, "points": b.home_points},
-        "timestamp": _ts()
-    }
+def get_cfb_boxscore(boxscore_id):
+    try:
+        box = Boxscore(boxscore_id)
+        return {
+            "source": "sportsipy",
+            "sport": "NCAAF",
+            "home_team": box.home_name,
+            "away_team": box.away_name,
+            "home_score": box.home_points,
+            "away_score": box.away_points,
+            "winning_team": box.winner,
+            "summary": box.summary,
+            "timestamp": int(time.time())
+        }
+    except Exception as e:
+        return {"error": str(e)}
