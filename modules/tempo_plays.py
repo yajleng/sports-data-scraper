@@ -1,3 +1,4 @@
+import os
 import requests
 
 def get_tempo(team, year=2025):
