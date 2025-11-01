@@ -5,7 +5,10 @@ import pandas as pd
 
 # Get absolute paths
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # one level up (to repo root)
-CACHE_FILE = os.path.join(BASE_DIR, "massey_cache.json")
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+CACHE_FILE = os.path.join(DATA_DIR, "massey_cache.json")
+CSV_FALLBACK = os.path.join(DATA_DIR, "massey_snapshot.csv")
 CSV_FALLBACK = os.path.join(BASE_DIR, "massey_snapshot.csv")
 
 
