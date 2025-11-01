@@ -7,47 +7,48 @@ CFB_KEY = os.getenv("CFBD_API_KEY", "")
 
 def get_tempo(team: str):
     """
-    Returns estimated tempo metrics:
+    Returns team tempo from drive-level stats:
     - plays_per_game
-    - plays_per_minute
+    - plays_per_minute (based on average drive duration)
     """
-
     headers = {"Authorization": f"Bearer {CFB_KEY}"} if CFB_KEY else {}
-    url = f"{CFB_API}/stats/season"
+    url = f"{CFB_API}/drives"
     params = {"year": 2025, "team": team}
 
     try:
-        r = requests.get(url, headers=headers, params=params, timeout=10)
+        r = requests.get(url, headers=headers, params=params, timeout=15)
         r.raise_for_status()
         data = r.json()
 
-        # --- Extract plays per game and TOP (time of possession)
-        plays = []
-        poss_minutes = []
+        if not data:
+            return {"error": f"no drive data found for {team}"}
 
-        for stat in data:
-            stats = stat.get("stats", [])
-            for s in stats:
-                if s["category"] == "plays":
-                    plays.append(float(s["stat"]))
-                if s["category"] in ["timeOfPossession", "time_of_possession"]:
-                    # Convert MM:SS → total minutes
-                    try:
-                        parts = str(s["stat"]).split(":")
-                        total_minutes = int(parts[0]) + int(parts[1]) / 60
-                        poss_minutes.append(total_minutes)
-                    except Exception:
-                        pass
+        total_plays = []
+        durations = []
 
-        if not plays:
+        for d in data:
+            if "plays" in d:
+                total_plays.append(d["plays"])
+            # Drive duration sometimes in "mm:ss"
+            if "driveTime" in d and isinstance(d["driveTime"], str):
+                try:
+                    mm, ss = map(int, d["driveTime"].split(":"))
+                    durations.append(mm + ss / 60)
+                except Exception:
+                    pass
+
+        if not total_plays:
             return {"error": f"no tempo data found for {team}"}
 
-        avg_plays = mean(plays)
-        avg_poss = mean(poss_minutes) if poss_minutes else 30.0  # assume 30 minutes if missing
-        plays_per_minute = round(avg_plays / avg_poss, 3)
+        avg_plays = mean(total_plays)
+        avg_duration = mean(durations) if durations else 2.5  # 2.5 min avg drive fallback
+
+        # Estimate: ~12 drives/game → scale per game
+        plays_per_game = avg_plays * 12
+        plays_per_minute = round(plays_per_game / (avg_duration * 12), 3)
 
         return {
-            "plays_per_game": round(avg_plays, 3),
+            "plays_per_game": round(plays_per_game, 3),
             "plays_per_minute": plays_per_minute,
         }
 
