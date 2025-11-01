@@ -71,3 +71,31 @@ def get_sportsdata_team_stats(name):
         "status": "not integrated",
         "timestamp": int(time.time()),
     }
+
+# ----------------------------------------------------------------------
+# Added helper wrappers for warmers.py compatibility
+# ----------------------------------------------------------------------
+def get_team_matchup(team: str, opp: str, year: int, week: int):
+    """
+    Lightweight wrapper to return matchup info.
+    Replace this with your real logic if it already exists elsewhere.
+    """
+    try:
+        from modules.cfb_extended import fetch_team_matchup  # if you have such a function
+        return fetch_team_matchup(team, opp, year, week)
+    except ImportError:
+        # fallback: return empty dict
+        return {"team": team, "opp": opp, "year": year, "week": week, "note": "placeholder"}
+
+
+def get_lines(team: str, year: int, week: int):
+    """
+    Placeholder or wrapper for CFBD lines data.
+    Adjust to call your actual data source if different.
+    """
+    try:
+        from modules.cfb_extended import fetch_lines
+        return fetch_lines(team, year, week)
+    except ImportError:
+        return {"team": team, "year": year, "week": week, "note": "placeholder"}
+
