@@ -14,6 +14,11 @@ def get_weather(lat, lon):
         "avg_wind": sum(data["hourly"]["windspeed_10m"]) / len(data["hourly"]["windspeed_10m"]),
         "rain_prob": sum(data["hourly"]["precipitation"]) / len(data["hourly"]["precipitation"]),
     }
+def get_hourly_kickoff_window(lat: float, lon: float, kickoff_iso: str):
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=temperature_2m,precipitation,wind_speed_10m&timezone=UTC"
+    data = requests.get(url, timeout=10).json()
+    # Optionally slice around kickoff
+    return {"kickoff": kickoff_iso, "weather_window": data.get("hourly", {})}
 
 # ---------------------------------------------------------------------
 # Added helper for warmers.py compatibility
