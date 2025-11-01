@@ -11,7 +11,6 @@ from modules.weather_openmeteo import get_weather
 from modules.odds_totals import get_odds_totals
 from modules.tempo_plays import get_tempo
 from modules.injuries_scraper import get_injuries
-from modules.warmers import warm_game  # ✅ keep this
 
 app = Flask(__name__)
 
@@ -148,23 +147,6 @@ def cfb_injuries():
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "ts": int(time.time())})
-
-# -----------------------------------------------------------
-# Warmup
-# -----------------------------------------------------------
-
-@app.route("/warm", methods=["POST"])
-def warm_endpoint():
-    data = request.get_json(force=True)
-    team = data.get("team")
-    opp = data.get("opp")
-    year = int(data.get("year"))
-    week = data.get("week")
-    lat = float(data.get("lat"))
-    lon = float(data.get("lon"))
-    kickoff = data.get("kickoff")
-    result = warm_game(team, opp, year, week, lat, lon, kickoff)
-    return jsonify(result)
 
 
 # -----------------------------------------------------------
