@@ -12,6 +12,12 @@ from modules.odds_totals import get_odds_totals
 from modules.tempo_plays import get_tempo
 from modules.injuries_scraper import get_injuries
 
+from modules.cfb_matchup import get_team_matchup
+from modules.cfb_lines import get_historical_lines
+from modules.weather_openmeteo import get_hourly_kickoff_window
+from modules.cfb_power_ratings import get_massey_ratings
+from modules.odds_history import get_odds_history
+
 app = Flask(__name__)
 
 
