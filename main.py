@@ -1,7 +1,8 @@
 import os
 import time
 from flask import Flask, jsonify, request
-# Core modules (yours)
+
+# Core modules
 from modules.cfb_data import get_cfbd_team
 from modules.cfb_batch import update_weekly_cache, read_from_cache, get_team_from_cache
 
@@ -10,9 +11,10 @@ from modules.weather_openmeteo import get_weather
 from modules.odds_totals import get_odds_totals
 from modules.tempo_plays import get_tempo
 from modules.injuries_scraper import get_injuries
-from modules.warmers import warm_game
+from modules.warmers import warm_game  # ✅ keep this
 
 app = Flask(__name__)
+
 
 # -----------------------------------------------------------
 # ROOT
