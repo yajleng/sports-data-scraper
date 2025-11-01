@@ -166,8 +166,6 @@ def warm_endpoint():
     result = warm_game(team, opp, year, week, lat, lon, kickoff)
     return jsonify(result)
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
 
 # -----------------------------------------------------------
 # RUN SERVER
