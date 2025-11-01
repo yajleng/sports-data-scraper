@@ -18,6 +18,9 @@ from modules.weather_openmeteo import get_hourly_kickoff_window
 from modules.cfb_power_ratings import get_massey_ratings
 from modules.odds_history import get_odds_history
 
+from modules.massey_scraper import fetch_massey_ratings
+
+
 app = Flask(__name__)
 
 
@@ -215,6 +218,10 @@ def cfb_odds_history():
     except Exception as e:
         return jsonify({"error": f"odds history fetch failed: {str(e)}"}), 500
 
+
+@app.route("/cfb/ratings")
+def cfb_ratings():
+    return jsonify(fetch_massey_ratings())
 
 # -----------------------------------------------------------
 # HEALTH CHECK
