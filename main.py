@@ -10,8 +10,6 @@ from modules.weather_openmeteo import get_weather
 from modules.odds_totals import get_odds_totals
 from modules.tempo_plays import get_tempo
 from modules.injuries_scraper import get_injuries
-
-from flask import Flask, jsonify, request
 from modules.warmers import warm_game
 
 app = Flask(__name__)
