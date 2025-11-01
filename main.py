@@ -1,7 +1,6 @@
 import os
 import time
 from flask import Flask, jsonify, request
-
 # Core modules (yours)
 from modules.cfb_data import get_cfbd_team
 from modules.cfb_batch import update_weekly_cache, read_from_cache, get_team_from_cache
@@ -11,6 +10,9 @@ from modules.weather_openmeteo import get_weather
 from modules.odds_totals import get_odds_totals
 from modules.tempo_plays import get_tempo
 from modules.injuries_scraper import get_injuries
+
+from flask import Flask, jsonify, request
+from modules.warmers import warm_game
 
 app = Flask(__name__)
 
@@ -146,6 +148,26 @@ def cfb_injuries():
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "ts": int(time.time())})
+
+# -----------------------------------------------------------
+# Warmup
+# -----------------------------------------------------------
+
+@app.route("/warm", methods=["POST"])
+def warm_endpoint():
+    data = request.get_json(force=True)
+    team = data.get("team")
+    opp = data.get("opp")
+    year = int(data.get("year"))
+    week = data.get("week")
+    lat = float(data.get("lat"))
+    lon = float(data.get("lon"))
+    kickoff = data.get("kickoff")
+    result = warm_game(team, opp, year, week, lat, lon, kickoff)
+    return jsonify(result)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
 
 # -----------------------------------------------------------
 # RUN SERVER
