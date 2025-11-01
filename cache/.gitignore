@@ -1,4 +1,0 @@
-
-# ignore cached files
-cache/*
-!cache/.gitkeep
