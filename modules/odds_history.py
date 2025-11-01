@@ -1,7 +1,7 @@
 import requests, os
 
 ODDS_API_KEY = os.getenv("ODDS_API_KEY")
-BASE_URL = "https://api.the-odds-api.com/v4/sports/ncaaf/odds-history"
+BASE_URL = "https://api.the-odds-api.com/v4/sports/americanfootball_ncaaf/odds-history"
 
 def get_odds_history(date: str):
     params = {"apiKey": ODDS_API_KEY, "regions": "us", "date": date}
