@@ -3,13 +3,12 @@ import json
 import datetime
 import pandas as pd
 
-# Get absolute paths
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # one level up (to repo root)
+# absolute path setup (Render + local)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DATA_DIR = os.path.join(BASE_DIR, "data")
+
 CACHE_FILE = os.path.join(DATA_DIR, "massey_cache.json")
 CSV_FALLBACK = os.path.join(DATA_DIR, "massey_snapshot.csv")
-CSV_FALLBACK = os.path.join(BASE_DIR, "massey_snapshot.csv")
 
 
 def fetch_massey_ratings():
@@ -18,7 +17,7 @@ def fetch_massey_ratings():
     Prefers cache → static CSV fallback (weekly snapshot).
     """
 
-    # 1️⃣ Check for existing cache
+    # 1️⃣ check for existing cache
     if os.path.exists(CACHE_FILE):
         try:
             with open(CACHE_FILE, "r", encoding="utf-8") as f:
@@ -27,13 +26,14 @@ def fetch_massey_ratings():
         except Exception:
             pass
 
-    # 2️⃣ CSV fallback (root-level file)
+    # 2️⃣ CSV fallback (data folder)
     if os.path.exists(CSV_FALLBACK):
         try:
             df = pd.read_csv(CSV_FALLBACK)
-            df = df.rename(columns=str.lower)
+            df.columns = [c.lower() for c in df.columns]
             records = df.to_dict(orient="records")
 
+            # update cache for next read
             with open(CACHE_FILE, "w", encoding="utf-8") as f:
                 json.dump({
                     "ts": datetime.datetime.utcnow().isoformat(),
@@ -45,5 +45,5 @@ def fetch_massey_ratings():
         except Exception as e:
             return {"error": f"CSV fallback failed: {str(e)}"}
 
-    # 3️⃣ No cache or CSV found
+    # 3️⃣ neither cache nor CSV exists
     return {"error": "No cache or CSV snapshot found."}
