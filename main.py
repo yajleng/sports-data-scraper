@@ -148,6 +148,75 @@ def cfb_injuries():
         return jsonify({"error": f"injury scrape failed: {str(e)}"}), 500
 
 # -----------------------------------------------------------
+# CFB TEAM MATCHUP (CFBD /teams/matchup)
+# -----------------------------------------------------------
+@app.route("/cfb/matchup")
+def cfb_matchup():
+    team1 = request.args.get("team1")
+    team2 = request.args.get("team2")
+    year = int(request.args.get("year", 2025))
+    if not team1 or not team2:
+        return jsonify({"error": "missing ?team1= and ?team2="}), 400
+    try:
+        return jsonify(get_team_matchup(team1, team2, year))
+    except Exception as e:
+        return jsonify({"error": f"matchup fetch failed: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------
+# CFB HISTORICAL LINES (CFBD /lines)
+# -----------------------------------------------------------
+@app.route("/cfb/lines")
+def cfb_lines():
+    try:
+        year = int(request.args.get("year", 2025))
+        week = int(request.args.get("week", 10))
+        data = get_historical_lines(year, week)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": f"lines fetch failed: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------
+# WEATHER HOURLY KICKOFF WINDOW (Open-Meteo)
+# -----------------------------------------------------------
+@app.route("/cfb/weather/hourly")
+def cfb_weather_hourly():
+    try:
+        lat = float(request.args.get("lat"))
+        lon = float(request.args.get("lon"))
+        kickoff = request.args.get("kickoff", "2025-11-01T23:00Z")
+        data = get_hourly_kickoff_window(lat, lon, kickoff)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": f"hourly weather failed: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------
+# MASSEY POWER RATINGS (scrape)
+# -----------------------------------------------------------
+@app.route("/cfb/ratings")
+def cfb_ratings():
+    try:
+        return jsonify(get_massey_ratings())
+    except Exception as e:
+        return jsonify({"error": f"ratings fetch failed: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------
+# PUBLIC ODDS HISTORY (OddsAPI)
+# -----------------------------------------------------------
+@app.route("/cfb/odds/history")
+def cfb_odds_history():
+    date = request.args.get("date", "2025-11-01")
+    try:
+        data = get_odds_history(date)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": f"odds history fetch failed: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------
 # HEALTH CHECK
 # -----------------------------------------------------------
 @app.route("/health")
