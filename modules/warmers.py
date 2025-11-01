@@ -1,13 +1,13 @@
-import time
 from datetime import datetime, timezone
+import time
 from typing import List, Tuple, Optional, Dict, Any
 
-from modules.cfbd_matchup import get_team_matchup
-from modules.cfbd_lines import get_lines
-from modules.weather_kickoff import get_kickoff_window
+# ✅ Adjusted imports to match your real files
+from modules.cfb_data import get_team_matchup  # or from cfb_extended if that’s where it lives
+from modules.cfb_data import get_lines         # or rename if exists elsewhere
+from modules.weather_openmeteo import get_kickoff_window
 
 def _to_dt_utc(s: str) -> datetime:
-    """Convert ISO8601 string like '2025-10-31T23:00Z' to UTC datetime."""
     s = s.replace("Z", "+00:00")
     dt = datetime.fromisoformat(s)
     if dt.tzinfo is None:
@@ -16,7 +16,6 @@ def _to_dt_utc(s: str) -> datetime:
 
 def warm_game(team: str, opp: str, year: int, week: Optional[int],
               lat: float, lon: float, kickoff_iso: str) -> Dict[str, Any]:
-    """Prefetch matchup, line, and weather data for a single game."""
     kickoff_dt = _to_dt_utc(kickoff_iso)
     report: Dict[str, Any] = {"team": team, "opp": opp, "year": year, "week": week, "ok": {}}
 
@@ -40,14 +39,3 @@ def warm_game(team: str, opp: str, year: int, week: Optional[int],
         report["ok"]["weather"] = f"err:{e}"
 
     return report
-
-def warm_slate(pairs: List[Tuple[str, str]], year: int, week: Optional[int],
-               latlons: List[Tuple[float, float]], kickoffs: List[str],
-               delay: float = 0.25) -> List[Dict[str, Any]]:
-    """Warm multiple games in one pass (safe to run periodically)."""
-    out = []
-    for (team, opp), (lat, lon), kickoff in zip(pairs, latlons, kickoffs):
-        res = warm_game(team, opp, year, week, lat, lon, kickoff)
-        out.append(res)
-        time.sleep(delay)  # polite pause between requests
-    return out
