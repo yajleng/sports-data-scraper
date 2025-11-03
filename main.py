@@ -215,6 +215,19 @@ def cfb_odds_history():
     except Exception as e:
         return jsonify({"error": f"odds history fetch failed: {str(e)}"}), 500
 
+@app.get("/cache/list")
+def list_cache_files():
+    files = [f for f in os.listdir("cache") if f.endswith(".json")]
+    return {"count": len(files), "files": files}
+
+@app.get("/cache/read")
+def read_cache_file(filename: str):
+    path = os.path.join("cache", filename)
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="Cache file not found")
+    with open(path) as f:
+        return json.load(f)
+
 # -----------------------------------------------------------
 # HEALTH CHECK
 # -----------------------------------------------------------
